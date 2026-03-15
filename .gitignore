@@ -1,13 +1,4 @@
 # =========================
-# Archivos de resultados
-# =========================
-*.csv
-*.txt
-salida.txt
-datos.csv
-resultado.csv
-
-# =========================
 # Archivos de entrada grandes
 # =========================
 numeros*.txt
