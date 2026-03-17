@@ -1,20 +1,27 @@
-clear
 clc
+clear
 close all
 
-data = readtable('resultados_algoritmos.csv');
+data = readtable('datos_resultados.csv');
 
-t = data.n;
-algoritmos = data(:,2:end);
+algoritmos = unique(data.Algoritmo);
 
-numAlg = width(algoritmos);
+for i = 1:length(algoritmos)
 
-for i=1:numAlg
+    nombre = algoritmos{i};
 
-    y = algoritmos{:,i};
-    nombre = algoritmos.Properties.VariableNames{i};
+    idx = strcmp(data.Algoritmo, nombre);
 
+    t = data.n(idx);
+    y = data.TiempoReal(idx);
+
+    % 🔹 ORDENAR
+    [t, orden] = sort(t);
+    y = y(orden);
+
+    % =========================
     % POLINOMIOS
+    % =========================
     p1 = polyfit(t,y,1);
     p2 = polyfit(t,y,2);
     p3 = polyfit(t,y,3);
@@ -25,45 +32,63 @@ for i=1:numAlg
     f3 = polyval(p3,t);
     f6 = polyval(p6,t);
 
+    % =========================
     % POTENCIAL
+    % =========================
     p = polyfit(log(t),log(y),1);
-    a = p(1);
-    c = exp(p(2));
-    fpot = c*t.^a;
+    fpot = exp(p(2)) * t.^p(1);
 
+    % =========================
     % EXPONENCIAL
+    % =========================
     p = polyfit(t,log(y),1);
-    a = p(1);
-    c = exp(p(2));
-    fexp = c*exp(a*t);
+    fexp = exp(p(2)) * exp(p(1)*t);
 
-    % LOGARITMICO
+    % =========================
+    % LOGARÍTMICO
+    % =========================
     p = polyfit(log(t),y,1);
     flog = p(1)*log(t)+p(2);
 
-    % GRAFICA COMPARATIVA
+    % =========================
+    % GRAFICA MEJORADA
+    % =========================
     figure
 
-    plot(t,y,'ro','MarkerFaceColor','r')
+    % Datos reales (más visibles)
+    plot(t,y,'o','MarkerSize',7,'MarkerFaceColor','r','MarkerEdgeColor','k')
     hold on
 
-    plot(t,f1,'b','LineWidth',1.5)
-    plot(t,f2,'g','LineWidth',1.5)
-    plot(t,f3,'m','LineWidth',1.5)
-    plot(t,f6,'k','LineWidth',1.5)
-
+    % Curvas (mejor estilo)
+    plot(t,f2,'g','LineWidth',2) % grado 2 (principal)
     plot(t,fpot,'c','LineWidth',2)
-    plot(t,fexp,'y','LineWidth',2)
-    plot(t,flog,'--','LineWidth',2)
 
-    title(['Comparativa de aproximaciones - ',nombre])
-    xlabel('n')
-    ylabel('Tiempo')
+    plot(t,f1,'--b','LineWidth',1)
+    plot(t,f3,'--m','LineWidth',1)
+    plot(t,f6,':k','LineWidth',1)
 
-    legend('Datos','grado1','grado2','grado3','grado6',...
-           'potencial','exponencial','logaritmico')
+    plot(t,flog,'--','LineWidth',2,'Color',[0 0.4 0.8])
+
+    % ⚠️ Exponencial más tenue (no dominante)
+    plot(t,fexp,'Color',[0.9 0.9 0],'LineWidth',1)
+
+    % 🔥 ESCALA LOGARÍTMICA (CLAVE)
+    set(gca,'YScale','log')
+
+    title(['Ajuste de modelos - ', strrep(nombre,'_',' ')],'FontSize',14)
+    xlabel('Tamaño del problema (n)','FontSize',12)
+    ylabel('Tiempo (segundos)','FontSize',12)
+
+    legend('Datos','grado 2','potencial',...
+           'grado 1','grado 3','grado 6',...
+           'logarítmico','exponencial',...
+           'Location','northwest')
 
     grid on
+    set(gca,'FontSize',11)
+
+    saveas(gcf, strcat('ajuste_',nombre,'.png'))
+
     hold off
 
-ends
+end

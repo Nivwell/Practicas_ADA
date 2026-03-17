@@ -1,28 +1,37 @@
 clear
 clc
 
+% ================================
+% Valores a estimar
+% ================================
 n = [3000000 4000000 5000000 6000000 10000000];
 
-%% MODELOS 
+% ================================
+% MODELOS (LOS CORRECTOS)
+% ================================
 
-burbuja = 2e-10 * n.^2;
+% O(n^2)
+bubble    = 2e-10 * n.^2;
 insertion = 1.9e-10 * n.^2;
 selection = 1.8e-10 * n.^2;
 
+% Intermedio
 shell = 3e-8 * n.^1.5;
 
+% O(n log n)
 merge = 2e-8 * n.*log(n);
 quick = 1.7e-8 * n.*log(n);
-heap = 1.9e-8 * n.*log(n);
+heap  = 1.9e-8 * n.*log(n);
+tree  = 2.1e-8 * n.*log(n);
 
-radix = 8e-7 * n;
-counting = 7e-7 * n;
-bucket = 6e-7 * n;
+% ================================
+% TABLA
+% ================================
+tabla = table(n',bubble',insertion',selection',shell',...
+              merge',quick',heap',tree');
 
-%% TABLA DE RESULTADOS
-
-tabla = table(n',burbuja',insertion',selection',shell',merge',quick',heap',radix',counting',bucket');
-
-tabla.Properties.VariableNames = {'n','Burbuja','Insertion','Selection','Shell','Merge','Quick','Heap','Radix','Counting','Bucket'};
+tabla.Properties.VariableNames = ...
+{'n','Bubble','Insertion','Selection','Shell',...
+ 'Merge','Quick','Heap','Tree'};
 
 disp(tabla)
