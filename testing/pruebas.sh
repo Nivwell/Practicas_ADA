@@ -7,9 +7,6 @@ sizes=(1000 2000 3000 4000 5000 8000 10000 50000 100000 150000 200000 300000 400
 
 # Ejecutables
 algoritmos=(
-heap_sort
-merge_sort
-quick_sort
 tree_sort
 )
 

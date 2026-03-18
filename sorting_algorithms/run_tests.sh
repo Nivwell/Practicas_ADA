@@ -33,12 +33,12 @@ algoritmos=(
 bubble_sort
 bubble_sort01
 bubble_sort02
-heap_sort
 insertion_sort
+shell_sort
+selection_sort
+heap_sort
 merge_sort
 quick_sort
-selection_sort
-shell_sort
 tree_sort
 )
 
