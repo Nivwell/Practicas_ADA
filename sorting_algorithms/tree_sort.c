@@ -23,7 +23,7 @@ Ejecución:  ./tree_sort 10000 < numeros10millones.txt >> resultados.csv
 // Librerías
 #include <stdio.h>
 #include <stdlib.h>
-#include "TADArbol_bin.h"   
+#include "TADArbol_Bin.h"   
 #include <string.h>
 #include "tiempo.h"
 
