@@ -52,6 +52,12 @@ int main(int num_arg, char *argv[])
 
     n = atoi(argv[1]);
 
+    if (n <= 0)
+    {
+        fprintf(stderr, "Error: El tamaño debe ser un entero positivo\n");
+        exit(1);
+    }
+
     int *arregloA = malloc(n * sizeof(int));
     if (arregloA == NULL)
     {
@@ -75,6 +81,12 @@ int main(int num_arg, char *argv[])
 
     AlgoritmoBurbujaOpt2(arregloA, n);
 
+    /* -------- Imprimir arreglo ordenado -------- */
+    for (i = 0; i < n; i++)
+    {
+        printf("%d\n", arregloA[i]);
+    }
+
     /* -------- Fin medición -------- */
     uswtime(&utime1, &stime1, &wtime1);
 
@@ -84,7 +96,6 @@ int main(int num_arg, char *argv[])
     double sys_time  = stime1 - stime0;
     double cpu_time  = user_time + sys_time;
     
-    // Evita división por cero si el tiempo es extremadamente rápido
     double cpu_percent = (wall_time > 0.0) ? (100.0 * cpu_time / wall_time) : 0.0;
 
     /* -------- Imprimir resultado CSV -------- */

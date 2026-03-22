@@ -49,6 +49,12 @@ int main(int num_arg, char *argv[])
 
     n = atoi(argv[1]);
 
+    if (n <= 0)
+    {
+        fprintf(stderr, "Error: El tamaño debe ser un entero positivo\n");
+        exit(1);
+    }
+
     int *arregloA = malloc(n * sizeof(int));
     if (arregloA == NULL)
     {
@@ -61,7 +67,7 @@ int main(int num_arg, char *argv[])
     {
         if (scanf("%d", &arregloA[i]) != 1)
         {
-            fprintf(stderr, "Error al leer datos\n");
+            fprintf(stderr, "Error al leer datos en la posición %d\n", i);
             free(arregloA);
             exit(1);
         }
@@ -72,11 +78,17 @@ int main(int num_arg, char *argv[])
 
     AlgoritmoBurbujaOpt1(arregloA, n);
 
+    /* ---------- Imprimir arreglo ordenado ---------- */
+    for (i = 0; i < n; i++)
+    {
+        printf("%d\n", arregloA[i]);
+    }
+
     /* ---------- Fin medición ---------- */
     uswtime(&utime1, &stime1, &wtime1);
 
     /* ---------- Imprimir resultado en CSV ---------- */
-    printf("Burbuja,%d,%.10f,%.10f,%.10f,%.10f\n",
+    printf("BurbujaOpt,%d,%.10f,%.10f,%.10f,%.10f\n",
            n,
            wtime1 - wtime0,
            utime1 - utime0,
@@ -87,7 +99,6 @@ int main(int num_arg, char *argv[])
     free(arregloA);
     return 0;
 }
-
 
 /*
 void AlgoritmoBurbujaOpt1(int *arregloA, int n)

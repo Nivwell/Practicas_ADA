@@ -59,6 +59,12 @@ int main(int num_args, char *cadena_args[])
 
     n = atoi(cadena_args[1]);
 
+    if (n <= 0)
+    {
+        fprintf(stderr, "\nError: El tamaño del arreglo debe ser un número entero positivo.\n");
+        exit(1);
+    }
+
     A = malloc(n * sizeof(int));
 
     if (A == NULL)
@@ -77,10 +83,18 @@ int main(int num_args, char *cadena_args[])
         }
     }
 
+    /* -------- Inicio medición -------- */
     uswtime(&utime0, &stime0, &wtime0);
 
     HeapSort(A, n);
 
+    /* -------- Imprimir arreglo ordenado -------- */
+    for (i = 0; i < n; i++)
+    {
+        printf("%d\n", A[i]);
+    }
+
+    /* -------- Fin medición -------- */
     uswtime(&utime1, &stime1, &wtime1);
 
     double wall_time = wtime1 - wtime0;
@@ -88,7 +102,6 @@ int main(int num_args, char *cadena_args[])
     double sys_time  = stime1 - stime0;
     double cpu_time  = user_time + sys_time;
     
-    // Protección contra división por cero
     double cpu_percent = (wall_time > 0.0) ? (100.0 * cpu_time / wall_time) : 0.0;
 
     /*------------- Guardar métricas en consola formato CSV -------------*/
@@ -103,7 +116,6 @@ int main(int num_args, char *cadena_args[])
 
     return 0;
 }
-
 // DECLARACIÓN DE FUNCIONES
 
 /*

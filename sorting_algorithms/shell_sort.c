@@ -59,7 +59,6 @@ int main(int argc, char *argv[])
 
     n = atoi(argv[1]);
 
-    // Validación de seguridad para tamaño positivo
     if (n <= 0)
     {
         fprintf(stderr, "\nError: El tamaño del arreglo debe ser un número entero positivo.\n");
@@ -73,7 +72,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    /* -------- Lectura segura desde stdin -------- */
+    /* -------- Lectura desde stdin -------- */
     for (i = 0; i < n; i++)
     {
         if (scanf("%d", &A[i]) != 1)
@@ -89,16 +88,20 @@ int main(int argc, char *argv[])
 
     algoritmo_shell(n, A);
 
+    /* -------- Imprimir arreglo ordenado -------- */
+    for (i = 0; i < n; i++)
+    {
+        printf("%d\n", A[i]);
+    }
+
     /* -------- Fin medición -------- */
     uswtime(&utime1, &stime1, &wtime1);
 
-    /* -------- Cálculos seguros -------- */
     double wall_time = wtime1 - wtime0;
     double user_time = utime1 - utime0;
     double sys_time  = stime1 - stime0;
     double cpu_time  = user_time + sys_time;
     
-    // Evita división por cero si el tiempo es extremadamente rápido
     double cpu_percent = (wall_time > 0.0) ? (100.0 * cpu_time / wall_time) : 0.0;
 
     /* -------- Imprimir resultado CSV -------- */
@@ -109,10 +112,10 @@ int main(int argc, char *argv[])
            sys_time,
            cpu_percent);
 
+           
     free(A);
     return 0;
 }
-
 /*
 void algoritmo_shell(int n, int *A);
 DESCRIPCION: Función que utiliza el algoritmo de ordenamiento de Shell para ordenar un arreglo.

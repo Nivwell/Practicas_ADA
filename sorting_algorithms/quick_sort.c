@@ -62,7 +62,6 @@ int main(int num_arg, char *argv[])
 
     num_ing = atoi(argv[1]);
     
-    // Validación de seguridad para tamaño positivo
     if (num_ing <= 0)
     {
         fprintf(stderr, "\nError: El tamaño del arreglo debe ser un número entero positivo.\n");
@@ -76,7 +75,7 @@ int main(int num_arg, char *argv[])
         exit(1);
     }
 
-    /* -------- Lectura segura desde stdin -------- */
+    /* -------- Lectura desde stdin -------- */
     for (i = 0; i < num_ing; i++)
     {
         if (scanf("%d", &arr[i]) != 1)
@@ -92,16 +91,20 @@ int main(int num_arg, char *argv[])
 
     QuickSort(arr, 0, num_ing - 1);
 
+    /* -------- Imprimir arreglo ordenado -------- */
+    for (i = 0; i < num_ing; i++)
+    {
+        printf("%d\n", arr[i]);
+    }
+
     /* -------- Fin medición -------- */
     uswtime(&utime1, &stime1, &wtime1);
 
-    /* -------- Cálculos seguros -------- */
     double wall_time = wtime1 - wtime0;
     double user_time = utime1 - utime0;
     double sys_time  = stime1 - stime0;
     double cpu_time  = user_time + sys_time;
     
-    // Evita división por cero si el tiempo es extremadamente rápido
     double cpu_percent = (wall_time > 0.0) ? (100.0 * cpu_time / wall_time) : 0.0;
 
     /* -------- Imprimir resultado CSV -------- */

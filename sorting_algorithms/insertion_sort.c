@@ -40,10 +40,8 @@ Función:
     del sistema (tiempo real, tiempo de CPU y tiempo de entrada/salida).
     6. Libera la memoria dinámica para evitar fugas (memory leaks).
 */
-
 int main(int num_arg, char *argv[])
 {
-
     int i, n;
     double utime0, stime0, wtime0, utime1, stime1, wtime1;
     int *A;
@@ -55,6 +53,12 @@ int main(int num_arg, char *argv[])
     }
 
     n = atoi(argv[1]);
+
+    if (n <= 0)
+    {
+        fprintf(stderr, "\nError: El tamaño del arreglo debe ser un número entero positivo.\n");
+        exit(1);
+    }
 
     A = malloc(n * sizeof(int));
     if (A == NULL)
@@ -77,6 +81,12 @@ int main(int num_arg, char *argv[])
     uswtime(&utime0, &stime0, &wtime0);
 
     Insercion(A, n);
+
+    /* -------- Imprimir arreglo ordenado -------- */
+    for (i = 0; i < n; i++)
+    {
+        printf("%d\n", A[i]);
+    }
 
     /* -------- Fin medición -------- */
     uswtime(&utime1, &stime1, &wtime1);
