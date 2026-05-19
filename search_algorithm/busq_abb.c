@@ -1,22 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "tiempo.h"
 
-// Estructura del Nodo para el ABB
 typedef struct Nodo {
     int dato;
     struct Nodo *izq;
     struct Nodo *der;
 } Nodo;
 
-// Prototipos
 Nodo* crearNodo(int valor);
 Nodo* insertar(Nodo* raiz, int valor);
 Nodo* buscarABB(Nodo* raiz, int objetivo);
 int* cargarNumeros(char *nombre, int cantidad, int conComas);
+void liberarArbol(Nodo* raiz); 
 
 int main(int argc, char *argv[]) {
     if (argc < 3) {
-        printf("Uso: %s <sucio.txt> <n>\n", argv[0]);
+        printf("Uso: %s <numero10millones.txt> <n>\n", argv[0]);
         return 1;
     }
 
@@ -25,37 +25,80 @@ int main(int argc, char *argv[]) {
     int n_objetivos = 20;
     Nodo* raiz = NULL;
 
-    // 1. Cargar los datos desordenados en un arreglo temporal
-    printf("Cargando %d numeros desde el archivo sucio...\n", n);
+    double utime0, stime0, wtime0, utime1, stime1, wtime1;
+
+    // PASO 1: CARGA DE DATOS
+    printf("[1/4] Cargando %d numeros desde el archivo... ", n); fflush(stdout);
     int *datos_sucios = cargarNumeros(f_sucio, n, 0);
     if (!datos_sucios) return 1;
+    printf("OK\n");
 
-    // 2. Construir el ABB
-    // Al estar desordenados, el árbol tenderá a estar más balanceado solo
-    printf("Construyendo el Arbol Binario de Busqueda...\n");
+    // PASO 2: CONSTRUCCIÓN DEL ABB
+    printf("[2/4] Construyendo el Arbol Binario de Busqueda... "); fflush(stdout);
     for (int i = 0; i < n; i++) {
         raiz = insertar(raiz, datos_sucios[i]);
     }
+    printf("OK\n");
 
-    // 3. Cargar los números que queremos buscar
+    // PASO 3: CARGA DE OBJETIVOS
     int *objetivos = cargarNumeros("objetivos.txt", n_objetivos, 1);
-
-    // 4. Ejecutar la Búsqueda en el Árbol
-    if (objetivos != NULL && raiz != NULL) {
-        printf("\n--- Resultados de Busqueda ABB ---\n");
-        for (int i = 0; i < n_objetivos; i++) {
-            Nodo* resultado = buscarABB(raiz, objetivos[i]);
-            if (resultado != NULL) {
-                printf("[ENCONTRADO] %d esta en el arbol.\n", objetivos[i]);
-            } else {
-                printf("[NO ENCONTRADO] %d no existe.\n", objetivos[i]);
-            }
-        }
-        free(objetivos);
+    if (!objetivos) {
+        printf("Error: No se encontro objetivos.txt\n");
+        liberarArbol(raiz);
+        free(datos_sucios);
+        return 1;
     }
 
-    // Limpieza de memoria del arreglo (el árbol requiere una función aparte para liberarse)
+    // PASO 4: BÚSQUEDA INDIVIDUAL Y ESCRITURA EN CSV
+    printf("[3/4] Buscando %d objetivos en el ABB y registrando tiempos...\n", n_objetivos);
+    
+    FILE *f_csv = fopen("bitacora_tiempos.csv", "a");
+    if (!f_csv) {
+        printf("[X] Error: No se pudo abrir o crear 'bitacora_tiempos.csv'\n");
+        free(datos_sucios); free(objetivos); liberarArbol(raiz);
+        return 1;
+    }
+
+    for (int j = 0; j < n_objetivos; j++) {
+        int buscado = objetivos[j];
+        
+        // Cronómetro exclusivo para la búsqueda actual en el ABB
+        uswtime(&utime0, &stime0, &wtime0);
+        Nodo* resultado = buscarABB(raiz, buscado);
+        uswtime(&utime1, &stime1, &wtime1);
+
+        int encontrado = (resultado != NULL) ? 1 : 0;
+        int posicion = -1; // En un ABB no hay índice lineal, usamos -1 como bandera
+
+        // Imprimir en consola para validación visual
+        if (encontrado) {
+            printf("  - Objetivo [%d]: Encontrado en el arbol\n", buscado);
+        } else {
+            printf("  - Objetivo [%d]: No encontrado\n", buscado);
+        }
+
+        // ESCRITURA FORZADA FILA POR FILA EN EL CSV
+        // Formato: Algoritmo, N, Objetivo, Encontrado, Indice, Hilos, T_Real, T_User, T_Sys
+        fprintf(f_csv, "Busqueda ABB Secuencial,%d,%d,%d,%d,1,%.10f,%.10f,%.10f\n", 
+                n, 
+                buscado, 
+                encontrado, 
+                posicion, 
+                wtime1 - wtime0, 
+                utime1 - utime0, 
+                stime1 - stime0);
+        
+        fflush(f_csv); // Obliga al SO a escribir en disco AHORA
+    }
+
+    fclose(f_csv);
+    printf("[4/4] Resultados guardados exitosamente en 'bitacora_tiempos.csv'\n");
+
+    // Limpieza de memoria
+    free(objetivos);
     free(datos_sucios);
+    liberarArbol(raiz); 
+    
     return 0;
 }
 
@@ -92,15 +135,28 @@ Nodo* buscarABB(Nodo* raiz, int objetivo) {
 
 int* cargarNumeros(char *nombre, int cantidad, int conComas) {
     FILE *f = fopen(nombre, "r");
-    if (f == NULL) {
-        printf("Error: No se pudo abrir %s\n", nombre);
+    if (f == NULL) return NULL;
+    
+    int *arreglo = (int *)malloc(cantidad * sizeof(int));
+    if (!arreglo) {
+        fclose(f);
         return NULL;
     }
-    int *arreglo = (int *)malloc(cantidad * sizeof(int));
+    
     for (int i = 0; i < cantidad; i++) {
-        if (conComas) fscanf(f, " %d ,", &arreglo[i]);
-        else fscanf(f, "%d", &arreglo[i]);
+        if (conComas) {
+            if (fscanf(f, " %d ,", &arreglo[i]) != 1) break;
+        } else {
+            if (fscanf(f, "%d", &arreglo[i]) != 1) break;
+        }
     }
     fclose(f);
     return arreglo;
+}
+
+void liberarArbol(Nodo* raiz) {
+    if (raiz == NULL) return;
+    liberarArbol(raiz->izq);
+    liberarArbol(raiz->der);
+    free(raiz);
 }
