@@ -3,6 +3,7 @@
 # =================================================================
 # SCRIPT MAESTRO - PRÁCTICAS DE ADA
 # Ejecuta algoritmos de búsqueda paralela (Pthreads) con Múltiples N
+# VERSIÓN: Solo Ejecución (Sin Compilación) y Bitácora Renombrada
 # =================================================================
 
 # 1. Configuración de parámetros globales
@@ -11,13 +12,13 @@ DATOS_SUCIOS="../testing/numeros10millones.txt"
 # ARREGLO DE TAMAÑOS: Las diferentes N para tus gráficas
 TAMANOS=(1000 5000 10000 50000 100000 500000 1000000 5000000 10000000)
 
-# Lista exacta de tus archivos .c
-ALGORITMOS=(
-    "busq_lineal.c"
-    "busq_binaria.c"
-    "busq_abb.c"
-    "busq_exponencial.c"
-    "busq_fibonacci.c"
+# Lista exacta de tus EJECUTABLES (ya sin la extensión .c)
+EJECUTABLES=(
+    "busq_lineal"
+    "busq_binaria"
+    "busq_abb"
+    "busq_exponencial"
+    "busq_fibonacci"
 )
 
 echo "================================================="
@@ -27,10 +28,8 @@ echo "================================================="
 # Ajustar el tamaño del Stack (vital para el ABB y ordenamientos)
 ulimit -s unlimited
 
-# Limpiar bitácora CSV anterior si existe
-if [ -f bitacora_tiempos.csv ]; then
-    rm bitacora_tiempos.csv
-fi
+# Limpiar bitácoras anteriores si existen para evitar mezclar datos viejos
+rm -f bitacora_tiempos.csv bitacora_tiempos_threads.csv
 
 # Verificar dependencias
 if [ ! -f objetivos.txt ]; then
@@ -38,22 +37,17 @@ if [ ! -f objetivos.txt ]; then
     cp ../testing/objetivos.txt .
 fi
 
-# 2. Bucle principal: Recorrer cada algoritmo
-for ARCHIVO_C in "${ALGORITMOS[@]}"
+# 2. Bucle principal: Recorrer cada ejecutable
+for EJECUTABLE in "${EJECUTABLES[@]}"
 do
     echo -e "\n================================================="
-    echo "[*] PROCESANDO ALGORITMO: $ARCHIVO_C"
+    echo "[*] PROCESANDO ALGORITMO: $EJECUTABLE"
     echo "================================================="
     
-    # Quitarle la extensión .c para nombrar el ejecutable
-    EJECUTABLE="${ARCHIVO_C%.c}"
-
-    # Compilar enlazando con la librería de tiempos y PTHREADS
-    echo "  [+] Compilando con -lpthread..."
-    gcc "$ARCHIVO_C" tiempo.c -lpthread -o "$EJECUTABLE"
-    
-    if [ $? -ne 0 ]; then
-        echo "  [-] ERROR al compilar $ARCHIVO_C. Saltando al siguiente..."
+    # Validar si el archivo existe y es ejecutable
+    if [ ! -x "./$EJECUTABLE" ]; then
+        echo "  [-] ADVERTENCIA: No se encontro el ejecutable './$EJECUTABLE' o no tiene permisos."
+        echo "      Saltando al siguiente..."
         continue
     fi
 
@@ -73,11 +67,17 @@ do
         done
     done
     
-    echo "  [+] $ARCHIVO_C terminado."
+    echo "  [+] $EJECUTABLE terminado."
     
 done
 
+# 4. Renombrar la bitácora automáticamente al finalizar
+if [ -f bitacora_tiempos.csv ]; then
+    mv bitacora_tiempos.csv bitacora_tiempos_threads.csv
+    echo -e "\n  [i] Archivo renombrado a 'bitacora_tiempos_threads.csv'"
+fi
+
 echo -e "\n================================================="
 echo "  ¡Pruebas paralelas completadas con exito!      "
-echo "  Revisa el archivo 'bitacora_tiempos.csv'       "
+echo "  Revisa el archivo 'bitacora_tiempos_threads.csv'"
 echo "================================================="

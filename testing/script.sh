@@ -3,22 +3,22 @@
 # =================================================================
 # SCRIPT MAESTRO - PRÁCTICAS DE ADA
 # Ejecuta todos los algoritmos de búsqueda secuencial (Múltiples N)
+# VERSIÓN: Solo Ejecución (Sin Compilación)
 # =================================================================
 
 # 1. Configuración de parámetros globales
-# Apuntamos a la carpeta 'testing' basándonos en tu árbol de directorios
 DATOS_SUCIOS="../testing/numeros10millones.txt"
 
 # ARREGLO DE TAMAÑOS: Aquí defines todas las N que quieres graficar
 TAMANOS=(1000 5000 10000 50000 100000 500000 1000000 5000000 10000000)
 
-# Lista exacta de tus archivos .c
-ALGORITMOS=(
-    "busq_lineal.c"
-    "busq_binaria.c"
-    "busq_abb.c"
-    "busq_exponencial.c"
-    "busq_fibonacci.c"
+# Lista exacta de tus EJECUTABLES (ya sin la extensión .c)
+EJECUTABLES=(
+    "busq_lineal"
+    "busq_binaria"
+    "busq_abb"
+    "busq_exponencial"
+    "busq_fibonacci"
 )
 
 echo "================================================="
@@ -34,28 +34,22 @@ if [ -f bitacora_tiempos.csv ]; then
 fi
 
 # IMPORTANTE: Los códigos C buscan "objetivos.txt" en el directorio actual.
-# Lo copiamos temporalmente desde testing si no existe aquí.
 if [ ! -f objetivos.txt ]; then
     echo "  [i] Copiando objetivos.txt desde /testing..."
     cp ../testing/objetivos.txt .
 fi
 
-# 2. Bucle principal: Recorrer cada algoritmo
-for ARCHIVO_C in "${ALGORITMOS[@]}"
+# 2. Bucle principal: Recorrer cada ejecutable
+for EJECUTABLE in "${EJECUTABLES[@]}"
 do
     echo -e "\n================================================="
-    echo "[*] PROCESANDO ALGORITMO: $ARCHIVO_C"
+    echo "[*] PROCESANDO ALGORITMO: $EJECUTABLE"
     echo "================================================="
     
-    # Quitarle la extensión .c para nombrar el ejecutable
-    EJECUTABLE="${ARCHIVO_C%.c}"
-
-    # Compilar enlazando con tiempo.c
-    echo "  [+] Compilando..."
-    gcc "$ARCHIVO_C" tiempo.c -o "$EJECUTABLE"
-    
-    if [ $? -ne 0 ]; then
-        echo "  [-] ERROR al compilar $ARCHIVO_C. Saltando al siguiente..."
+    # Validar si el archivo existe y es ejecutable
+    if [ ! -x "./$EJECUTABLE" ]; then
+        echo "  [-] ADVERTENCIA: No se encontro el ejecutable './$EJECUTABLE' o no tiene permisos."
+        echo "      Saltando al siguiente..."
         continue
     fi
 
@@ -69,7 +63,7 @@ do
         ./"$EJECUTABLE" "$DATOS_SUCIOS" "$N"
     done
     
-    echo "  [+] $ARCHIVO_C terminado."
+    echo "  [+] $EJECUTABLE terminado."
     
 done
 
