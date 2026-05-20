@@ -1,2 +1,4 @@
 search_algorithm/*.txt
 testing/*.exe
+testing/numeros10millones.txt
+testing_threads/numeros10millones.txt

@@ -1,3 +1,30 @@
+/*
+IMPLEMENTACION DEL ALGORITMO DE BUSQUEDA EXPONENCIAL SECUENCIAL
+Autores: 
+        Garcia Peñalva Saul 
+        López Alvarado Daniel
+        Olarte Tomas Kevin Saul
+        Pérez Ortiz Luis Angel
+Autor original de la librería de tiempos: 
+        Edgardo Adrián Franco Martinez
+Fecha de entrega 20 de Mayo del 2026
+Version: 2.0
+
+DESCRIPCION: Este codigo ordena un arreglo de n elementos utilizando el algoritmo QuickSort y 
+posteriormente implementa el algoritmo de Búsqueda Exponencial para encontrar elementos específicos. 
+La búsqueda exponencial funciona en dos etapas: primero, encuentra un rango en el que el elemento 
+buscado podría estar presente, realizando saltos de tamaño exponencial (1, 2, 4, 8...). Una vez 
+encontrado el límite superior, se aplica una búsqueda binaria tradicional dentro de ese subrango. 
+El programa mide de forma aislada el tiempo de búsqueda para múltiples objetivos y exporta los 
+resultados a un archivo CSV.
+
+OBSERVACIONES: La cantidad de elementos 'n' debe ser un número entero positivo y coincidir 
+con el tamaño del archivo de entrada. El archivo "objetivos.txt" debe existir en el mismo directorio.
+
+Compilación: gcc busq_exponencial.c tiempo.c -o busqueda_exponencial
+Ejecución: ./busqueda_exponencial <numeros10millones.txt> <n>
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "tiempo.h" // Se agrega la librería de medición
@@ -12,6 +39,20 @@ void Intercambiar(int *arr, int i, int j);
 int busquedaBinariaInterna(int *arreglo, int izquierda, int derecha, int objetivo);
 int busquedaExponencial(int *arreglo, int n, int objetivo);
 
+/*
+int main(int argc, char *argv[])
+Recibe: argc - Número de argumentos recibidos (incluyendo el nombre del programa).
+        *argv[] - Vector de cadenas (argv[1] es el archivo de datos desordenados, argv[2] es la cantidad 'n').
+Devuelve: int (0 si el programa finaliza correctamente, 1 en caso de error).
+Función: 
+    1. Valida los argumentos de entrada desde la terminal.
+    2. Gestiona la carga de 'n' datos desordenados desde el archivo a la memoria dinámica.
+    3. Ordena los datos en memoria utilizando QuickSort y reporta este tiempo en terminal.
+    4. Carga un conjunto de objetivos a buscar desde "objetivos.txt".
+    5. Implementa el cronometraje con 'uswtime' aislando exclusivamente la función de Búsqueda Exponencial.
+    6. Exporta fila por fila los resultados (tiempo Real, User, Sys y estado de éxito) a un CSV.
+    7. Limpia la memoria dinámica antes de finalizar el proceso.
+*/
 int main(int argc, char *argv[]) {
     // Se elimina el argumento del archivo ordenado
     if (argc < 3) {
@@ -102,6 +143,14 @@ int main(int argc, char *argv[]) {
 
 /* --- ALGORITMO DE BÚSQUEDA EXPONENCIAL --- */
 
+/*
+int busquedaExponencial(int *arreglo, int n, int objetivo)
+DESCRIPCION: Función que implementa la búsqueda exponencial para localizar un elemento en un arreglo ordenado.
+Recibe: arreglo - Puntero al arreglo de enteros previamente ordenado.
+        n - Número total de elementos en el arreglo.
+        objetivo - El número entero que se desea localizar.
+Devuelve: Un entero que representa el índice donde se encontró el objetivo, o -1 si no existe en el arreglo.
+*/
 int busquedaExponencial(int *arreglo, int n, int objetivo) {
     // Si el elemento está en la primera posición
     if (arreglo[0] == objetivo) return 0;
@@ -117,7 +166,15 @@ int busquedaExponencial(int *arreglo, int n, int objetivo) {
     return busquedaBinariaInterna(arreglo, i / 2, limite_derecho, objetivo);
 }
 
-// Búsqueda binaria adaptada para trabajar con rangos específicos
+/*
+int busquedaBinariaInterna(int *arreglo, int izquierda, int derecha, int objetivo)
+DESCRIPCION: Función de búsqueda binaria diseñada específicamente para operar sobre un subrango del arreglo.
+Recibe: arreglo - Puntero al arreglo de enteros ordenado.
+        izquierda - Índice límite inferior del subrango a evaluar.
+        derecha - Índice límite superior del subrango a evaluar.
+        objetivo - Número entero a localizar.
+Devuelve: Índice donde se encontró el objetivo, o -1 si no se localizó dentro del subrango.
+*/
 int busquedaBinariaInterna(int *arreglo, int izquierda, int derecha, int objetivo) {
     while (izquierda <= derecha) {
         int medio = izquierda + (derecha - izquierda) / 2;
@@ -130,6 +187,14 @@ int busquedaBinariaInterna(int *arreglo, int izquierda, int derecha, int objetiv
 
 /* --- BLOQUE DE FUNCIONES REUTILIZADAS --- */
 
+/*
+int* cargarNumeros(char *nombre, int cantidad, int conComas)
+DESCRIPCION: Función utilitaria para leer archivos de texto y cargar sus valores en un arreglo dinámico.
+Recibe: nombre - Cadena de texto con el nombre del archivo a leer.
+        cantidad - Número total de elementos a extraer del archivo.
+        conComas - Bandera entera (1 si los números están separados por comas, 0 por saltos de línea/espacios).
+Devuelve: Un puntero al arreglo de enteros cargado en memoria, o NULL en caso de error.
+*/
 int* cargarNumeros(char *nombre, int cantidad, int conComas) {
     FILE *f = fopen(nombre, "r");
     if (f == NULL) return NULL;
@@ -142,6 +207,15 @@ int* cargarNumeros(char *nombre, int cantidad, int conComas) {
     return arreglo;
 }
 
+/*
+void QuickSort(int *arr, int p, int r)
+DESCRIPCION: Función que divide el arreglo en subarreglos más pequeños alrededor de un pivote y 
+luego ordena esos subarreglos de manera recursiva hasta que todo el arreglo está ordenado de menor a mayor.
+Recibe: arr - Puntero al arreglo de enteros a ordenar.
+        p - Índice inicial (límite inferior) del subarreglo.
+        r - Índice final (límite superior) del subarreglo.
+Devuelve: void (No retorna valor explicito).
+*/
 void QuickSort(int *arr, int p, int r) {
     if (p < r) {
         int j = Pivot(arr, p, r);
@@ -150,6 +224,15 @@ void QuickSort(int *arr, int p, int r) {
     }
 }
 
+/*
+int Pivot(int *arr, int p, int r)
+DESCRIPCION: Función auxiliar de QuickSort que selecciona un pivote y particiona el arreglo, 
+colocando los elementos menores a la izquierda del pivote y los mayores a la derecha.
+Recibe: arr - Puntero al arreglo de enteros.
+        p - Índice inicial para iniciar la evaluación.
+        r - Índice final para la evaluación.
+Devuelve: Un entero que representa el índice final de partición donde fue ubicado el pivote.
+*/
 int Pivot(int *arr, int p, int r) {
     int piv = arr[p], i = p + 1, j = r;
     while (i <= j) {
@@ -161,6 +244,14 @@ int Pivot(int *arr, int p, int r) {
     return j;
 }
 
+/*
+void Intercambiar(int *arr, int i, int j)
+DESCRIPCION: Función utilitaria para realizar el intercambio (swap) de dos elementos dentro del arreglo.
+Recibe: arr - Puntero al arreglo de enteros.
+        i - Índice de la posición del primer elemento.
+        j - Índice de la posición del segundo elemento.
+Devuelve: void (No retorna valor explicito).
+*/
 void Intercambiar(int *arr, int i, int j) {
     int temp = arr[j];
     arr[j] = arr[i];
