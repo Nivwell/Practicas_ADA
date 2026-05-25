@@ -1,0 +1,6 @@
+[COMPRESIÓN] Archivo: archivo.txt
+  Tamano original: 119 bytes
+  Tamano final:    60 bytes
+  Tasa compresion: 49.58%
+  Tiempo Real: 0.000277 s | CPU: 0.000000 s | E/S: 0.000284 s | Uso CPU: 102.51%
+--------------------------------------------------
